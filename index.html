@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>几何冲刺</title>
+    <style>
+      :root {
+        color-scheme: light;
+        background: #edf6f8;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle at 18% 18%, rgba(103, 213, 191, 0.24), transparent 30%),
+          radial-gradient(circle at 78% 10%, rgba(255, 194, 98, 0.22), transparent 28%),
+          linear-gradient(180deg, #f7fbfc 0%, #e8f5f7 100%);
+      }
+
+      .phone {
+        width: min(100vw, 430px);
+        height: min(100vh, 932px);
+        padding: 10px;
+        border-radius: 34px;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 24px 70px rgba(45, 76, 87, 0.18);
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 26px;
+        touch-action: none;
+        background: #f8fcfd;
+      }
+
+      @media (max-width: 520px) {
+        .phone {
+          width: 100vw;
+          height: 100vh;
+          padding: 0;
+          border-radius: 0;
+          box-shadow: none;
+        }
+
+        canvas {
+          border-radius: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="phone" aria-label="几何冲刺网页版游戏">
+      <canvas id="game"></canvas>
+    </main>
+    <script src="./src/game-core.js"></script>
+    <script>
+      const canvas = document.getElementById('game');
+      const game = new GeometryDash.GeometryDashGame({
+        canvas,
+        storage: GeometryDash.createBrowserStorage(),
+        audio: GeometryDash.createBrowserAudio(),
+        env: 'browser'
+      });
+      window.__geometryDashGame = game;
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        game.resize(rect.width, rect.height, window.devicePixelRatio || 1);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      game.start();
+
+      canvas.addEventListener('pointerdown', (event) => {
+        canvas.setPointerCapture(event.pointerId);
+        game.pointerDown(event.offsetX, event.offsetY);
+      });
+
+      canvas.addEventListener('pointermove', (event) => {
+        game.pointerMove(event.offsetX, event.offsetY);
+      });
+
+      canvas.addEventListener('pointerup', (event) => {
+        game.pointerUp(event.offsetX, event.offsetY);
+      });
+
+      canvas.addEventListener('pointercancel', () => {
+        game.pointerUp(null, null);
+      });
+
+      window.addEventListener('keydown', (event) => {
+        const keyMap = {
+          ArrowLeft: 'left',
+          ArrowRight: 'right',
+          ArrowUp: 'up',
+          ArrowDown: 'down',
+          a: 'left',
+          d: 'right',
+          w: 'up',
+          s: 'down'
+        };
+        const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+        const direction = keyMap[key];
+        if (!direction) return;
+        event.preventDefault();
+        game.handleDirectionalInput(direction);
+      });
+    </script>
+  </body>
+</html>

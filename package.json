@@ -1,0 +1,9 @@
+{
+  "name": "geometry-dash-mini-game",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "check": "node --check src/game-core.js && node --check game.js && node --check scripts/smoke-test.js",
+    "test": "node scripts/smoke-test.js"
+  }
+}
