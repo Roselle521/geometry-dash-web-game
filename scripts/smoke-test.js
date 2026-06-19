@@ -149,14 +149,21 @@ function run() {
   game.damagePlayer(2);
   assert.equal(game.state, 'result');
   assert.equal(game.result.type, 'fail');
+  assert.equal(game.result.detail, '本局收集 8 金币，已入账');
+  assert.equal(game.save.coins, 8);
+  game.failLevel();
+  assert.equal(game.save.coins, 8, 'failed run coins must not be credited twice');
 
   game.startLevel(1);
   game.run.coinsEarned = 12;
   game.completeLevel();
   assert.equal(game.state, 'result');
   assert.equal(game.result.type, 'win');
+  assert.equal(game.result.detail, '收集 12 + 通关奖励 80 = 92 金币');
   assert.equal(game.save.highestLevel, 2);
-  assert.ok(game.save.coins >= 92);
+  assert.equal(game.save.coins, 100);
+  game.completeLevel();
+  assert.equal(game.save.coins, 100, 'winning run coins must not be credited twice');
   assert.ok(writes.some((entry) => entry.key === GeometryDash.SAVE_KEY));
 
   game.save.coins = 1000;

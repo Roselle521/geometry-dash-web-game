@@ -357,6 +357,7 @@
         targetVerticalOffset: 0,
         invuln: 0,
         phaseTimer: 0,
+        settled: false,
         combo: 0
       };
       this.entities = [];
@@ -565,15 +566,18 @@
     }
 
     completeLevel() {
+      if (this.run.settled) return;
+      this.run.settled = true;
       const level = this.level;
-      const reward = level.reward + this.run.coinsEarned;
-      this.save.coins += reward;
+      const collected = this.run.coinsEarned;
+      const totalCoins = level.reward + collected;
+      this.save.coins += totalCoins;
       this.save.highestLevel = Math.max(this.save.highestLevel, Math.min(level.id + 1, LEVELS.length));
       this.persistSave();
       this.result = {
         type: 'win',
         title: level.id === LEVELS.length ? '全部通关' : '关卡完成',
-        detail: `奖励 ${reward} 金币`,
+        detail: `收集 ${collected} + 通关奖励 ${level.reward} = ${totalCoins} 金币`,
         levelId: level.id
       };
       this.state = 'result';
@@ -582,10 +586,15 @@
     }
 
     failLevel() {
+      if (this.run.settled) return;
+      this.run.settled = true;
+      const collected = this.run.coinsEarned;
+      this.save.coins += collected;
+      this.persistSave();
       this.result = {
         type: 'fail',
         title: '挑战失败',
-        detail: `本局收集 ${this.run.coinsEarned} 金币`,
+        detail: `本局收集 ${collected} 金币，已入账`,
         levelId: this.level.id
       };
       this.state = 'result';
